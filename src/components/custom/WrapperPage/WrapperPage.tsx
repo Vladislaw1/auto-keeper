@@ -21,7 +21,7 @@ export const WrapperPage = ({
 
   if (error && !loading)
     return (
-      <div className={cn('w-full h-full flex items-center justify-center')}>
+      <div className={cn('flex h-full w-full items-center justify-center')}>
         <Error
           textContent={error}
           card={true}
@@ -31,12 +31,16 @@ export const WrapperPage = ({
 
   return (
     <div>
-      <div className={cn('flex items-center justify-between')}>
-        <div>
-          <h4>{header}</h4>
-          <p className={cn('text-xs italic')}>{desc}</p>
+      <div
+        className={cn(
+          'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between',
+        )}
+      >
+        <div className="min-w-0">
+          <h4 className="text-lg sm:text-xl">{header}</h4>
+          <p className={cn('text-xs italic text-gray-500')}>{desc}</p>
         </div>
-        <div>{side}</div>
+        <div className="shrink-0 self-start sm:self-auto">{side}</div>
       </div>
 
       <hr className={cn('my-3')} />

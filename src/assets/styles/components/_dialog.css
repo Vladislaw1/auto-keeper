@@ -1,7 +1,7 @@
 @layer components {
   .dialog-overlay {
     transition: all 0.15s ease-in-out;
-    @apply inset-0 fixed z-40 flex items-center justify-center bg-black/60 p-4 dark:bg-black/80 backdrop-blur-md sm:p-8;
+    @apply inset-0 fixed z-50 flex items-center justify-center bg-black/60 p-4 dark:bg-black/80 backdrop-blur-md sm:p-8;
   }
 
   .dialog {

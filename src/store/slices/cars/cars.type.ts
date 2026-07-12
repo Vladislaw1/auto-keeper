@@ -1,4 +1,5 @@
 import type { FuelType, Transmission } from '@/constants/cars.constant';
+import type { WorkCategory } from '@/constants/work-category.constant';
 
 export interface ICarOwner {
   id: string;
@@ -10,6 +11,29 @@ export interface ICarPhoto {
   id: string;
   url: string;
   isMain: boolean;
+}
+
+export interface IWorkType {
+  category: WorkCategory;
+  id: string;
+  name: string;
+}
+
+export interface IServiceVisitItem {
+  id: string;
+  note: string;
+  price: string;
+
+  workType: IWorkType;
+}
+
+export interface IServiceVisit {
+  date: Date;
+  id: string;
+  items: IServiceVisitItem[];
+  mileage: number;
+  notes: string;
+  totalCost: string;
 }
 
 export interface ICar {
@@ -32,7 +56,7 @@ export interface ICar {
   owner: ICarOwner;
   photos: ICarPhoto[];
 
-  servicesVisits: any;
+  serviceVisits: IServiceVisit[];
 }
 
 export type ICreateCarPayload = Omit<ICar, 'id'>;
@@ -89,3 +113,43 @@ export const ADD_CAR_FORM_INITIAL: IAddCarFormState = {
 };
 
 export type IUpdateCarPayload = Partial<ICreateCarPayload>;
+
+export interface IAddServiceVisitFormItem {
+  workTypeId: string;
+  price: number | '';
+  note: string;
+}
+
+export interface IAddServiceVisitFormState {
+  carId: string;
+  date: Date | null;
+  mileage: number | '';
+  totalCost: number | '';
+  notes: string;
+  items: IAddServiceVisitFormItem[];
+}
+
+export interface ICreateServiceVisitRequest {
+  carId: string;
+  date: string;
+  mileage: number;
+  totalCost?: number;
+  notes?: string;
+  items: {
+    workTypeId: string;
+    price?: number;
+    note?: string;
+  }[];
+}
+
+export const ADD_SERVICE_VISIT_FORM_INITIAL = (
+  carId: string,
+  mileage: number,
+): IAddServiceVisitFormState => ({
+  carId,
+  date: null,
+  mileage,
+  totalCost: '',
+  notes: '',
+  items: [{ workTypeId: '', price: '', note: '' }],
+});

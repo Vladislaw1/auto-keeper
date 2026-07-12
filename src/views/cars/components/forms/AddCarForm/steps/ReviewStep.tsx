@@ -4,7 +4,7 @@ import { useAppSelector } from '@/store/hooks';
 import { getOwnerOptionsSelector } from '@/store/slices/car-catalog/car-catalog.selectors';
 import { getAddCarFormStateSelector } from '@/store/slices/cars/cars.selectors';
 
-export const ReviewStep = () => {
+export const ReviewStep = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const formState = useAppSelector(getAddCarFormStateSelector);
   const ownerOptions = useAppSelector(getOwnerOptionsSelector);
 
@@ -13,10 +13,12 @@ export const ReviewStep = () => {
 
   return (
     <StepLayout
+      hideHeader={hideHeader}
       title="Перевірка даних"
       description="Переконайтесь, що всі дані введені правильно"
     >
       <CarDetailsCards
+        showServiceVisits={false}
         data={{
           brand: formState?.brand ?? '',
           model: formState?.model ?? '',
@@ -30,6 +32,7 @@ export const ReviewStep = () => {
           mileage: formState?.mileage ?? '',
           fuelType: formState?.fuelType ?? '',
           transmission: formState?.transmission ?? '',
+          photos: [],
         }}
       />
     </StepLayout>

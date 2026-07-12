@@ -16,6 +16,7 @@ import localeReducer from './slices/localeSlice';
 import routeKeyReducer from './slices/routeKeySlice';
 import CarsReducer from './slices/cars/cars.slice';
 import carCatalogReducer from './slices/car-catalog/car-catalog.slice';
+import workCatalogReducer from './slices/work-catalog/work-catalog.slice';
 
 const authPersistConfig = {
   key: 'sessionUser',
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
   locale: persistReducer(localePersistConfig, localeReducer),
   cars: CarsReducer,
   carCatalog: carCatalogReducer,
+  workCatalog: workCatalogReducer,
   routeKey: routeKeyReducer,
 });
 

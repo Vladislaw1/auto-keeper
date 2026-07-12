@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getAddCarFormStateSelector } from '@/store/slices/cars/cars.selectors';
 import { updateFormState } from '@/store/slices/cars/cars.slice';
 
-export const VehicleStep = () => {
+export const VehicleStep = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const dispatch = useAppDispatch();
   const formState = useAppSelector(getAddCarFormStateSelector);
 
@@ -16,6 +16,7 @@ export const VehicleStep = () => {
 
   return (
     <StepLayout
+      hideHeader={hideHeader}
       title="Основна інформація"
       description="Вкажіть марку, модель та рік випуску автомобіля"
     >

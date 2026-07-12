@@ -1,6 +1,13 @@
-import { FUEL_TYPE_LABELS, TRANSMISSION_LABELS, FuelType, Transmission } from '@/constants/cars.constant';
-import { ICar } from '@/store/slices/cars/cars.type';
-import type { ReactNode } from 'react';
+import {
+  FUEL_TYPE_LABELS,
+  FuelType,
+  Transmission,
+  TRANSMISSION_LABELS,
+} from '@/constants/cars.constant';
+import { ICar, ICarPhoto } from '@/store/slices/cars/cars.type';
+import cn from 'classnames';
+import { DetailServiceVisitsDialog } from '@/views/cars/components';
+import { ReviewCard, ReviewRow } from '@/components/custom';
 
 export type CarDetailsData = {
   brand: string;
@@ -15,23 +22,8 @@ export type CarDetailsData = {
   mileage: number | string;
   fuelType: string;
   transmission: string;
+  photos: ICarPhoto[];
 };
-
-const ReviewRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex items-start justify-between gap-3 border-b border-gray-200/80 py-1.5 last:border-0 dark:border-gray-700/80">
-    <span className="shrink-0 text-sm text-gray-500">{label}</span>
-    <span className="text-right text-sm font-medium text-gray-900 break-all dark:text-gray-100">
-      {value || '—'}
-    </span>
-  </div>
-);
-
-const ReviewCard = ({ title, children }: { title: string; children: ReactNode }) => (
-  <div className="rounded-xl border border-gray-200 bg-white/80 p-3.5 dark:border-gray-700 dark:bg-gray-900/40">
-    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{title}</p>
-    <div>{children}</div>
-  </div>
-);
 
 const formatFuelType = (fuelType: string) =>
   fuelType in FUEL_TYPE_LABELS ? FUEL_TYPE_LABELS[fuelType as FuelType] : fuelType;
@@ -54,15 +46,29 @@ export const mapCarToDetails = (car: ICar): CarDetailsData => ({
   mileage: car.mileage,
   fuelType: car.fuelType,
   transmission: car.transmission,
+  photos: car.photos ?? [],
 });
 
 type CarDetailsCardsProps = {
   data: CarDetailsData;
+  showServiceVisits?: boolean;
 };
 
-export const CarDetailsCards = ({ data }: CarDetailsCardsProps) => {
+export const CarDetailsCards = ({ data, showServiceVisits = true }: CarDetailsCardsProps) => {
   return (
     <div className="grid grid-cols-1 gap-3">
+      <div className={cn('flex flex-wrap items-center justify-center gap-3')}>
+        {data?.photos?.length > 0 &&
+          data?.photos?.map((photo) => (
+            <img
+              key={photo.id}
+              src={photo.url}
+              alt="car"
+              className={cn('h-auto max-h-48 w-full max-w-xs rounded-lg object-cover sm:h-50 sm:w-50')}
+            />
+          ))}
+      </div>
+      {showServiceVisits && <DetailServiceVisitsDialog />}
       <ReviewCard title="Автомобіль">
         <ReviewRow
           label="Марка"

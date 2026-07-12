@@ -7,7 +7,7 @@ import { IAddCarFormState } from '@/store/slices/cars/cars.type';
 
 type RegistrationField = keyof Pick<IAddCarFormState, 'carNumber' | 'vin' | 'color'>;
 
-export const RegistrationStep = () => {
+export const RegistrationStep = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const dispatch = useAppDispatch();
   const formState = useAppSelector(getAddCarFormStateSelector);
 
@@ -17,6 +17,7 @@ export const RegistrationStep = () => {
 
   return (
     <StepLayout
+      hideHeader={hideHeader}
       title="Реєстраційні дані"
       description="Номерний знак, VIN-код та колір кузова"
     >

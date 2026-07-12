@@ -39,7 +39,11 @@ const buildCreateCarRequest = (
   transmission: formState.transmission,
 });
 
-export const AddCarForm = () => {
+type AddCarFormProps = {
+  isMobile?: boolean;
+};
+
+export const AddCarForm = ({ isMobile = false }: AddCarFormProps) => {
   const dispatch = useAppDispatch();
 
   const formState = useAppSelector(getAddCarFormStateSelector);
@@ -58,7 +62,6 @@ export const AddCarForm = () => {
     if (step === ADD_CAR_STEPS.VEHICLE || step === ADD_CAR_STEPS.OWNER) {
       dispatch(restoreCarCatalogFromFormState(formState));
     }
-    // Відновлюємо каталог лише при зміні кроку, не при кожному оновленні formState (напр. рік)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, step]);
 
@@ -118,15 +121,15 @@ export const AddCarForm = () => {
   const renderStepContent = () => {
     switch (step) {
       case ADD_CAR_STEPS.VEHICLE:
-        return <VehicleStep />;
+        return <VehicleStep hideHeader={isMobile} />;
       case ADD_CAR_STEPS.OWNER:
-        return <OwnerStep />;
+        return <OwnerStep hideHeader={isMobile} />;
       case ADD_CAR_STEPS.REGISTRATION:
-        return <RegistrationStep />;
+        return <RegistrationStep hideHeader={isMobile} />;
       case ADD_CAR_STEPS.TECHNICAL:
-        return <TechnicalStep />;
+        return <TechnicalStep hideHeader={isMobile} />;
       case ADD_CAR_STEPS.REVIEW:
-        return <ReviewStep />;
+        return <ReviewStep hideHeader={isMobile} />;
       default:
         return null;
     }
@@ -146,42 +149,44 @@ export const AddCarForm = () => {
         }
       }}
     >
-      <div className="flex min-h-0 flex-1 items-stretch gap-6">
-        <Steps
-          vertical
-          current={step}
-          className="sticky top-0 w-[280px] shrink-0 self-start"
-          onChange={(index) => {
-            if (index < step) {
-              saveCurrentStep();
-              dispatch(setFormStep(index));
-            }
-          }}
-        >
-          {ADD_CAR_STEP_CONFIG.map((stepConfig) => (
-            <Steps.Item
-              key={stepConfig.key}
-              title={
-                <span className="inline-flex items-center gap-2">
-                  {stepConfig.icon}
-                  {stepConfig.title}
-                </span>
+      <div className={cn('flex min-h-0 flex-1 items-stretch', isMobile ? 'gap-0' : 'gap-6')}>
+        {!isMobile && (
+          <Steps
+            vertical
+            current={step}
+            className="sticky top-0 hidden w-[280px] shrink-0 self-start md:block"
+            onChange={(index) => {
+              if (index < step) {
+                saveCurrentStep();
+                dispatch(setFormStep(index));
               }
-              description={stepConfig.description}
-            />
-          ))}
-        </Steps>
+            }}
+          >
+            {ADD_CAR_STEP_CONFIG.map((stepConfig) => (
+              <Steps.Item
+                key={stepConfig.key}
+                title={
+                  <span className="inline-flex items-center gap-2">
+                    {stepConfig.icon}
+                    {stepConfig.title}
+                  </span>
+                }
+                description={stepConfig.description}
+              />
+            ))}
+          </Steps>
+        )}
 
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pr-1">
             {renderStepContent()}
           </div>
 
-          {error && <p className="mt-4 shrink-0 text-sm text-red-500">{error}</p>}
+          {error && <p className="mt-2 shrink-0 text-sm text-red-500 md:mt-4">{error}</p>}
 
           <div
             className={cn(
-              'mt-auto flex shrink-0 items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700',
+              'mt-auto flex shrink-0 items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 md:pt-4',
             )}
           >
             <Button
@@ -213,7 +218,7 @@ export const AddCarForm = () => {
                 loading={loading}
                 icon={<BsPlus />}
               >
-                Додати автомобіль
+                {isMobile ? 'Додати' : 'Додати автомобіль'}
               </Button>
             )}
           </div>

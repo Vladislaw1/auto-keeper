@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import classNames from 'classnames';
 import Drawer from '@/components/ui/Drawer';
 import NavToggle from '@/components/shared/NavToggle';
@@ -44,7 +44,7 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }: Mobile
         <MobileNavToggle toggled={isOpen} />
       </div>
       <Drawer
-        title="Navigation"
+        title="Auto Keeper"
         isOpen={isOpen}
         bodyClass={classNames('p-0')}
         width={330}

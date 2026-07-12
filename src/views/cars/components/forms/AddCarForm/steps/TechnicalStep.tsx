@@ -17,7 +17,7 @@ type TechnicalField = keyof Pick<
   'engineCode' | 'engineVolume' | 'fuelType' | 'transmission'
 >;
 
-export const TechnicalStep = () => {
+export const TechnicalStep = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const dispatch = useAppDispatch();
   const formState = useAppSelector(getAddCarFormStateSelector);
 
@@ -32,6 +32,7 @@ export const TechnicalStep = () => {
 
   return (
     <StepLayout
+      hideHeader={hideHeader}
       title="Технічні характеристики"
       description="Двигун, пробіг та тип трансмісії"
     >

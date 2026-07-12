@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { WrapperPage } from '@/components/custom';
 import { useSelector } from 'react-redux';
 import { getCarsSelector } from '@/store/slices/cars/cars.selectors';
-import { AddCarDialog, CarDetailsDrawer, CarsList } from '@/views/cars/components';
+import { AddCarDialog, AddServiceVisitDialog, CarDetailsDrawer, CarsList } from '@/views/cars/components';
 import { AddCarButton } from '@/views/cars/components/buttons';
 
 const Cars = () => {
@@ -28,6 +28,7 @@ const Cars = () => {
         <CarsList />
       </div>
       <AddCarDialog />
+      <AddServiceVisitDialog />
       <CarDetailsDrawer />
     </WrapperPage>
   );

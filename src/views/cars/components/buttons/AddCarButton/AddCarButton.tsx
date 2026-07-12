@@ -3,9 +3,11 @@ import { Button } from '@/components/ui';
 import { SIZES } from '@/components/ui/utils/constants';
 import { useAppDispatch } from '@/store/hooks';
 import { openDialog } from '@/store/slices/cars/cars.slice';
+import useResponsive from '@/utils/hooks/useResponsive';
 
 export const AddCarButton = () => {
   const dispatch = useAppDispatch();
+  const { smaller } = useResponsive();
 
   const onOpen = () => {
     dispatch(openDialog());
@@ -14,11 +16,11 @@ export const AddCarButton = () => {
   return (
     <Button
       icon={<CgMathPlus />}
-      variant={'plain'}
+      variant="plain"
       size={SIZES.SM}
       onClick={onOpen}
     >
-      Додати автомобіль
+      {smaller.sm ? 'Додати' : 'Додати автомобіль'}
     </Button>
   );
 };

@@ -1,6 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getCarsListAction, postCreatedCarAction } from '@/store/slices/cars/cars.actions';
-import { ADD_CAR_FORM_INITIAL, IAddCarFormState, ICar } from '@/store/slices/cars/cars.type';
+import { getCarsListAction, postCreatedCarAction, postServiceVisitAction } from '@/store/slices/cars/cars.actions';
+import {
+  ADD_CAR_FORM_INITIAL,
+  ADD_SERVICE_VISIT_FORM_INITIAL,
+  IAddCarFormState,
+  IAddServiceVisitFormItem,
+  IAddServiceVisitFormState,
+  ICar,
+} from '@/store/slices/cars/cars.type';
 
 interface ICarsState {
   cars: {
@@ -11,6 +18,13 @@ interface ICarsState {
   action: {
     isOpened: boolean;
     formState: IAddCarFormState | null;
+    loading: boolean;
+    error: string | null;
+  };
+  serviceVisitAction: {
+    isOpened: boolean;
+    selectedCar: ICar | null;
+    formState: IAddServiceVisitFormState | null;
     loading: boolean;
     error: string | null;
   };
@@ -32,10 +46,21 @@ const initialState: ICarsState = {
     error: null,
     loading: false,
   },
+  serviceVisitAction: {
+    isOpened: false,
+    selectedCar: null,
+    formState: null,
+    error: null,
+    loading: false,
+  },
   drawer: {
     isOpened: false,
     selectedCar: null,
   },
+};
+
+const appendVisitToCar = (car: ICar, visit: ICar['serviceVisits'][number]) => {
+  car.serviceVisits = [visit, ...(car.serviceVisits ?? [])];
 };
 
 export const CarsSlice = createSlice({
@@ -64,6 +89,68 @@ export const CarsSlice = createSlice({
       if (state.action.formState) {
         state.action.formState.step = action.payload;
       }
+    },
+    openAddVisitDialog: (state, action: PayloadAction<ICar>) => {
+      state.serviceVisitAction.isOpened = true;
+      state.serviceVisitAction.selectedCar = action.payload;
+      state.serviceVisitAction.formState = ADD_SERVICE_VISIT_FORM_INITIAL(
+        action.payload.id,
+        action.payload.mileage,
+      );
+      state.serviceVisitAction.error = null;
+    },
+    closeAddVisitDialog: (state) => {
+      state.serviceVisitAction.isOpened = false;
+      state.serviceVisitAction.selectedCar = null;
+      state.serviceVisitAction.formState = null;
+      state.serviceVisitAction.error = null;
+    },
+    updateServiceVisitFormState: (
+      state,
+      action: PayloadAction<Partial<IAddServiceVisitFormState>>,
+    ) => {
+      if (state.serviceVisitAction.formState) {
+        state.serviceVisitAction.formState = {
+          ...state.serviceVisitAction.formState,
+          ...action.payload,
+        };
+      }
+    },
+    addServiceVisitItem: (state) => {
+      if (state.serviceVisitAction.formState) {
+        state.serviceVisitAction.formState.items.push({
+          workTypeId: '',
+          price: '',
+          note: '',
+        });
+      }
+    },
+    removeServiceVisitItem: (state, action: PayloadAction<number>) => {
+      if (!state.serviceVisitAction.formState) {
+        return;
+      }
+
+      if (state.serviceVisitAction.formState.items.length <= 1) {
+        return;
+      }
+
+      state.serviceVisitAction.formState.items.splice(action.payload, 1);
+    },
+    updateServiceVisitItem: (
+      state,
+      action: PayloadAction<{ index: number } & Partial<IAddServiceVisitFormItem>>,
+    ) => {
+      const { index, ...changes } = action.payload;
+      const item = state.serviceVisitAction.formState?.items[index];
+
+      if (!item) {
+        return;
+      }
+
+      state.serviceVisitAction.formState!.items[index] = {
+        ...item,
+        ...changes,
+      };
     },
     openCarDrawer: (state, action: PayloadAction<ICar>) => {
       state.drawer.isOpened = true;
@@ -109,10 +196,48 @@ export const CarsSlice = createSlice({
       .addCase(postCreatedCarAction.rejected, (state, action) => {
         state.action.error = action.payload ?? 'Помилка додавання автомобіля';
         state.action.loading = false;
+      })
+      .addCase(postServiceVisitAction.pending, (state) => {
+        state.serviceVisitAction.loading = true;
+        state.serviceVisitAction.error = null;
+      })
+      .addCase(postServiceVisitAction.fulfilled, (state, action) => {
+        const { visit, carId } = action.payload;
+
+        state.serviceVisitAction.loading = false;
+        state.serviceVisitAction.error = null;
+        state.serviceVisitAction.isOpened = false;
+        state.serviceVisitAction.formState = null;
+        state.serviceVisitAction.selectedCar = null;
+
+        const carInList = state.cars.data?.find((car) => car.id === carId);
+        if (carInList) {
+          appendVisitToCar(carInList, visit);
+        }
+
+        if (state.drawer.selectedCar?.id === carId) {
+          appendVisitToCar(state.drawer.selectedCar, visit);
+        }
+      })
+      .addCase(postServiceVisitAction.rejected, (state, action) => {
+        state.serviceVisitAction.error = action.payload ?? 'Помилка додавання візиту на СТО';
+        state.serviceVisitAction.loading = false;
       }),
 });
 
-export const { openDialog, closeDialog, updateFormState, setFormStep, openCarDrawer, closeCarDrawer } =
-  CarsSlice.actions;
+export const {
+  openDialog,
+  closeDialog,
+  updateFormState,
+  setFormStep,
+  openAddVisitDialog,
+  closeAddVisitDialog,
+  updateServiceVisitFormState,
+  addServiceVisitItem,
+  removeServiceVisitItem,
+  updateServiceVisitItem,
+  openCarDrawer,
+  closeCarDrawer,
+} = CarsSlice.actions;
 
 export default CarsSlice.reducer;
