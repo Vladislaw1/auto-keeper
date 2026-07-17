@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getCarsListAction, postCreatedCarAction, postServiceVisitAction } from '@/store/slices/cars/cars.actions';
+import {
+  deleteCarAction,
+  getCarsListAction,
+  postCreatedCarAction,
+  postServiceVisitAction,
+} from '@/store/slices/cars/cars.actions';
 import {
   ADD_CAR_FORM_INITIAL,
   ADD_SERVICE_VISIT_FORM_INITIAL,
@@ -62,6 +67,8 @@ const initialState: ICarsState = {
 const appendVisitToCar = (car: ICar, visit: ICar['serviceVisits'][number]) => {
   car.serviceVisits = [visit, ...(car.serviceVisits ?? [])];
 };
+
+const deleteCar = (id: string, cars: ICar[]) => cars?.filter((car) => car?.id !== id);
 
 export const CarsSlice = createSlice({
   name: 'cars',
@@ -221,6 +228,26 @@ export const CarsSlice = createSlice({
       })
       .addCase(postServiceVisitAction.rejected, (state, action) => {
         state.serviceVisitAction.error = action.payload ?? 'Помилка додавання візиту на СТО';
+        state.serviceVisitAction.loading = false;
+      })
+      .addCase(deleteCarAction.pending, (state) => {
+        state.serviceVisitAction.loading = true;
+        state.serviceVisitAction.error = null;
+      })
+      .addCase(deleteCarAction.fulfilled, (state, action) => {
+        const { id } = action.payload;
+
+        state.serviceVisitAction.loading = false;
+        state.serviceVisitAction.error = null;
+
+        if (!state.cars.data || state.cars.data?.length === 0) return;
+
+        if (id && state.cars.data) {
+          deleteCar(id, state.cars.data);
+        }
+      })
+      .addCase(deleteCarAction.rejected, (state, action) => {
+        state.serviceVisitAction.error = action.payload ?? 'Помилка видалення автомобіля';
         state.serviceVisitAction.loading = false;
       }),
 });

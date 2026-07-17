@@ -4,7 +4,7 @@ import { DataTable } from '@/components/shared';
 import { ICar } from '@/store/slices/cars/cars.type';
 import { useAppDispatch } from '@/store/hooks';
 import { openCarDrawer } from '@/store/slices/cars/cars.slice';
-import { AddServiceVisitButton } from '@/views/cars/components/buttons';
+import { AddServiceVisitButton, DeleteCarButton } from '@/views/cars/components/buttons';
 import { CarCard } from '@/views/cars/components/entities/CarCard';
 import cn from 'classnames';
 
@@ -34,8 +34,8 @@ export const CarsList = () => {
 
       <div className="hidden md:block">
         <DataTable<ICar>
+          compact
           data={data}
-          onRowClick={handleOpenCar}
           columns={[
             {
               accessorKey: 'brand',
@@ -69,14 +69,20 @@ export const CarsList = () => {
               id: 'actions',
               header: '',
               cell: ({ row }) => (
-                <AddServiceVisitButton
-                  car={row.original}
-                  stopPropagation
-                />
+                <div className={cn('flex items-center justify-center gap-2')}>
+                  <AddServiceVisitButton
+                    stopPropagation
+                    car={row.original}
+                  />
+                  <DeleteCarButton
+                    stopPropagation
+                    car={row.original}
+                  />
+                </div>
               ),
             },
           ]}
-          compact
+          onRowClick={handleOpenCar}
         />
       </div>
     </>

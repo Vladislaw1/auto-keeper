@@ -18,7 +18,7 @@ export const protectedRoutes: Routes = [
   {
     key: 'owners',
     path: '/owners',
-    component: lazy(() => import('@/views/cars/Cars')),
+    component: lazy(() => import('@/views/owners/Owners')),
     authority: [],
     meta: {
       layout: 'topBarClassic',

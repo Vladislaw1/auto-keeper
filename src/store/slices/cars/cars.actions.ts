@@ -1,12 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { carsServices } from '@/services/cars';
 import { serviceVisitsServices } from '@/services/service-visits';
-import {
-  ICar,
-  ICreateCarRequest,
-  ICreateServiceVisitRequest,
-  IServiceVisit,
-} from '@/store/slices/cars/cars.type';
+import { ICar, ICreateCarRequest, ICreateServiceVisitRequest, IServiceVisit, } from '@/store/slices/cars/cars.type';
 
 export const getCarsListAction = createAsyncThunk<
   ICar[],
@@ -46,3 +41,14 @@ export const postServiceVisitAction = createAsyncThunk<
     return rejectWithValue(e);
   }
 });
+
+export const deleteCarAction = createAsyncThunk<ICar, string, { rejectValue: string }>(
+  'cars/deleteCar',
+  async (id, { rejectWithValue }) => {
+    try {
+      return await carsServices.remove(id);
+    } catch (e) {
+      return rejectWithValue(e);
+    }
+  },
+);

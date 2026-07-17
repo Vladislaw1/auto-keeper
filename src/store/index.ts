@@ -17,6 +17,7 @@ import routeKeyReducer from './slices/routeKeySlice';
 import CarsReducer from './slices/cars/cars.slice';
 import carCatalogReducer from './slices/car-catalog/car-catalog.slice';
 import workCatalogReducer from './slices/work-catalog/work-catalog.slice';
+import ownersReducer from './slices/owners/owners.slice';
 
 const authPersistConfig = {
   key: 'sessionUser',
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
   theme: persistReducer(themePersistConfig, themeReducer),
   locale: persistReducer(localePersistConfig, localeReducer),
   cars: CarsReducer,
+  owners: ownersReducer,
   carCatalog: carCatalogReducer,
   workCatalog: workCatalogReducer,
   routeKey: routeKeyReducer,

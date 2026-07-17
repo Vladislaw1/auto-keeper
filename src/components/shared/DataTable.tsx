@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState, useImperativeHandle } from 'react';
+import { useMemo, useRef, useEffect, useState, useImperativeHandle, Fragment } from 'react';
 import classNames from 'classnames';
 import Table from '@/components/ui/Table';
 import Pagination from '@/components/ui/Pagination';
@@ -10,12 +10,14 @@ import FileNotFound from '@/assets/svg/FileNotFound';
 import {
   useReactTable,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   flexRender,
   ColumnDef,
   ColumnSort,
+  ExpandedState,
   Row,
   CellContext,
 } from '@tanstack/react-table';
@@ -23,6 +25,7 @@ import type { TableProps } from '@/components/ui/Table';
 import type { SkeletonProps } from '@/components/ui/Skeleton';
 import type { Ref, ChangeEvent, ReactNode } from 'react';
 import type { CheckboxProps } from '@/components/ui/Checkbox';
+import { HiChevronRight } from 'react-icons/hi';
 
 export type OnSortParam = {
   order: 'asc' | 'desc' | '';
@@ -44,6 +47,9 @@ type DataTableProps<T> = {
   onSort?: (sort: OnSortParam) => void;
   pageSizes?: number[];
   selectable?: boolean;
+  expandable?: boolean;
+  getRowCanExpand?: (row: Row<T>) => boolean;
+  renderExpandedRow?: (row: T) => ReactNode;
   skeletonAvatarColumns?: number[];
   skeletonAvatarProps?: SkeletonProps;
   pagingData?: {
@@ -117,6 +123,9 @@ function DataTable<T>(props: DataTableProps<T>) {
     onSort,
     pageSizes = [10, 25, 50, 100],
     selectable = false,
+    expandable = false,
+    getRowCanExpand,
+    renderExpandedRow,
     skeletonAvatarProps,
     pagingData = {
       total: 0,
@@ -133,6 +142,7 @@ function DataTable<T>(props: DataTableProps<T>) {
   const { pageSize, pageIndex, total } = pagingData;
 
   const [sorting, setSorting] = useState<ColumnSort[] | null>(null);
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const pageSizeOption = useMemo(
     () =>
@@ -168,59 +178,95 @@ function DataTable<T>(props: DataTableProps<T>) {
   };
 
   const finalColumns: ColumnDef<T>[] = useMemo(() => {
-    const columns = columnsProp;
+    const columns = [...columnsProp];
+
+    if (expandable) {
+      columns.unshift({
+        id: 'expander',
+        maxSize: 40,
+        header: () => null,
+        cell: ({ row }) => {
+          if (!row.getCanExpand()) {
+            return null;
+          }
+
+          return (
+            <button
+              type="button"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+              aria-label={row.getIsExpanded() ? 'Згорнути' : 'Розгорнути'}
+              onClick={(event) => {
+                event.stopPropagation();
+                row.getToggleExpandedHandler()();
+              }}
+            >
+              <HiChevronRight
+                className={classNames(
+                  'text-lg transition-transform duration-150',
+                  row.getIsExpanded() && 'rotate-90',
+                )}
+              />
+            </button>
+          );
+        },
+      });
+    }
 
     if (selectable) {
-      return [
-        {
-          id: 'select',
-          maxSize: 50,
-          header: ({ table }) => (
-            <IndeterminateCheckbox
-              checked={
-                indeterminateCheckboxChecked
-                  ? indeterminateCheckboxChecked(table.getRowModel().rows)
-                  : table.getIsAllRowsSelected()
-              }
-              indeterminate={table.getIsSomeRowsSelected()}
-              onChange={table.getToggleAllRowsSelectedHandler()}
-              onIndeterminateCheckBoxChange={(e) => {
-                handleIndeterminateCheckBoxChange(e.target.checked, table.getRowModel().rows);
-              }}
-            />
-          ),
-          cell: ({ row }) => (
-            <IndeterminateCheckbox
-              checked={checkboxChecked ? checkboxChecked(row.original) : row.getIsSelected()}
-              disabled={!row.getCanSelect()}
-              indeterminate={row.getIsSomeSelected()}
-              onChange={row.getToggleSelectedHandler()}
-              onCheckBoxChange={(e) => handleCheckBoxChange(e.target.checked, row.original)}
-            />
-          ),
-        },
-        ...columns,
-      ];
+      columns.unshift({
+        id: 'select',
+        maxSize: 50,
+        header: ({ table }) => (
+          <IndeterminateCheckbox
+            checked={
+              indeterminateCheckboxChecked
+                ? indeterminateCheckboxChecked(table.getRowModel().rows)
+                : table.getIsAllRowsSelected()
+            }
+            indeterminate={table.getIsSomeRowsSelected()}
+            onChange={table.getToggleAllRowsSelectedHandler()}
+            onIndeterminateCheckBoxChange={(e) => {
+              handleIndeterminateCheckBoxChange(e.target.checked, table.getRowModel().rows);
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <IndeterminateCheckbox
+            checked={checkboxChecked ? checkboxChecked(row.original) : row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            indeterminate={row.getIsSomeSelected()}
+            onChange={row.getToggleSelectedHandler()}
+            onCheckBoxChange={(e) => handleCheckBoxChange(e.target.checked, row.original)}
+          />
+        ),
+      });
     }
+
     return columns;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [columnsProp, selectable, loading, checkboxChecked]);
+  }, [columnsProp, selectable, expandable, loading, checkboxChecked]);
 
   const table = useReactTable({
     data,
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     columns: finalColumns as ColumnDef<unknown | object | any[], any>[],
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getRowCanExpand: expandable
+      ? ((getRowCanExpand as ((row: Row<unknown>) => boolean) | undefined) ?? (() => true))
+      : undefined,
     manualPagination: true,
     manualSorting: true,
+    onExpandedChange: setExpanded,
     onSortingChange: (sorter) => {
       setSorting(sorter as ColumnSort[]);
     },
     state: {
       sorting: sorting as ColumnSort[],
+      expanded,
     },
   });
 
@@ -318,24 +364,48 @@ function DataTable<T>(props: DataTableProps<T>) {
                 .rows.slice(0, pageSize)
                 .map((row) => {
                   return (
-                    <Tr
-                      key={row.id}
-                      className={onRowClick ? 'cursor-pointer' : undefined}
-                      onClick={() => onRowClick?.(row.original as T)}
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        return (
+                    <Fragment key={row.id}>
+                      <Tr
+                        className={classNames(
+                          onRowClick && 'cursor-pointer',
+                          expandable && row.getCanExpand() && !onRowClick && 'cursor-pointer',
+                          row.getIsExpanded() && 'bg-gray-50 dark:bg-gray-700/40',
+                        )}
+                        onClick={() => {
+                          if (onRowClick) {
+                            onRowClick(row.original as T);
+                            return;
+                          }
+
+                          if (expandable && row.getCanExpand()) {
+                            row.getToggleExpandedHandler()();
+                          }
+                        }}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <Td
+                              key={cell.id}
+                              style={{
+                                width: cell.column.getSize(),
+                              }}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </Td>
+                          );
+                        })}
+                      </Tr>
+                      {expandable && row.getIsExpanded() && renderExpandedRow && (
+                        <Tr className="hover:bg-transparent">
                           <Td
-                            key={cell.id}
-                            style={{
-                              width: cell.column.getSize(),
-                            }}
+                            colSpan={finalColumns.length}
+                            className="hover:bg-transparent bg-gray-50/80 dark:bg-gray-800/50"
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            {renderExpandedRow(row.original as T)}
                           </Td>
-                        );
-                      })}
-                    </Tr>
+                        </Tr>
+                      )}
+                    </Fragment>
                   );
                 })
             )}

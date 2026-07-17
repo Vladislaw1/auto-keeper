@@ -10,7 +10,7 @@ type SignUpProps = {
   signInUrl?: string;
 };
 
-export const SignUpBase = ({ signInUrl = '/sign-in', disableSubmit }: SignUpProps) => {
+export const SignUpBase = ({ signInUrl = '/cars', disableSubmit }: SignUpProps) => {
   const [message, setMessage] = useTimeOutMessage();
 
   const mode = useAppSelector((state) => state.theme.mode);
