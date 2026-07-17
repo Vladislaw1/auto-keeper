@@ -74,7 +74,7 @@ export const OwnersLists = () => {
         {
           id: 'actions',
           header: '',
-          cell: ({ row }) => {
+          cell: () => {
             return (
               <div className={cn('flex items-center justify-end gap-2')}>
                 <Button
