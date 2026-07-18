@@ -6,6 +6,8 @@ export type AppConfig = {
   accessTokenPersistStrategy: 'localStorage' | 'sessionStorage' | 'cookies';
   enableMock: boolean;
   activeNavTranslation: boolean;
+  /** Поки авторизації немає — вимикає гард і завжди показує post-login layout */
+  enableAuth: boolean;
 };
 
 const appConfig: AppConfig = {
@@ -16,6 +18,7 @@ const appConfig: AppConfig = {
   accessTokenPersistStrategy: 'cookies',
   enableMock: true,
   activeNavTranslation: false,
+  enableAuth: false,
 };
 
 export default appConfig;

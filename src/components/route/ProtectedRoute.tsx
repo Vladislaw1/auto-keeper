@@ -3,7 +3,7 @@ import { REDIRECT_URL_KEY } from '@/constants/app.constant';
 import { Navigate, Outlet } from 'react-router';
 import { useAuth } from '@/auth';
 
-const { unAuthenticatedEntryPath } = appConfig;
+const { unAuthenticatedEntryPath, enableAuth } = appConfig;
 
 const ProtectedRoute = () => {
   const { authenticated } = useAuth();
@@ -12,7 +12,7 @@ const ProtectedRoute = () => {
 
   const getPathName = pathName === '/' ? '' : `?${REDIRECT_URL_KEY}=${pathName}`;
 
-  if (!authenticated) {
+  if (enableAuth && !authenticated) {
     return (
       <Navigate
         replace

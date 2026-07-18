@@ -5,6 +5,7 @@ import {
   fetchOwnersAction,
 } from '@/store/slices/car-catalog/car-catalog.actions';
 import { ICarBrand, ICarModel, IOwner } from '@/store/slices/car-catalog/car-catalog.type';
+import { postCreatedOwnerAction } from '@/store/slices/owners/owners.actions';
 
 interface ICarCatalogState {
   brands: {
@@ -123,6 +124,21 @@ export const carCatalogSlice = createSlice({
       .addCase(fetchOwnersAction.rejected, (state, action) => {
         state.owners.error = action.payload ?? 'Помилка отримання списку власників';
         state.owners.loading = false;
+      })
+      .addCase(postCreatedOwnerAction.fulfilled, (state, action) => {
+        const owner: IOwner = {
+          id: action.payload.id,
+          first_name: action.payload.first_name,
+          last_name: action.payload.last_name,
+        };
+
+        if (Array.isArray(state.owners.data)) {
+          if (!state.owners.data.some((item) => item.id === owner.id)) {
+            state.owners.data.push(owner);
+          }
+        } else {
+          state.owners.data = [owner];
+        }
       }),
 });
 
