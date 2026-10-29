@@ -24,6 +24,16 @@ export const protectedRoutes: Routes = [
       layout: 'topBarClassic',
     },
   },
+  {
+    key: 'map',
+    path: '/map',
+    component: lazy(() => import('@/views/map/PageMap')),
+    authority: [],
+    meta: {
+      layout: 'topBarClassic',
+      footer: false,
+    },
+  },
   /** Example purpose only, please remove */
   {
     key: 'singleMenuItem',

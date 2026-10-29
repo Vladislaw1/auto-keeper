@@ -7,13 +7,14 @@ import {
 } from 'react-icons/pi';
 import type { JSX } from 'react';
 import { FaCarSide } from 'react-icons/fa6';
-import { BiUser } from 'react-icons/bi';
+import { BiMap, BiUser } from 'react-icons/bi';
 
 export type NavigationIcons = Record<string, JSX.Element>;
 
 const navigationIcon: NavigationIcons = {
   cars: <FaCarSide />,
   owners: <BiUser />,
+  map: <BiMap />,
   singleMenu: <PiAcornDuotone />,
   collapseMenu: <PiArrowsInDuotone />,
   groupSingleMenu: <PiBookOpenUserDuotone />,

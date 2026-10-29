@@ -23,6 +23,16 @@ const navigationConfig: NavigationTree[] = [
     authority: [],
     subMenu: [],
   },
+  {
+    key: 'map',
+    path: '/map',
+    title: 'Карта',
+    translateKey: 'nav.map',
+    icon: 'map',
+    type: NAV_ITEM_TYPE_ITEM,
+    authority: [],
+    subMenu: [],
+  },
 ];
 
 export default navigationConfig;
